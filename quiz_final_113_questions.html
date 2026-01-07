@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Multi-Joueurs Angers Loire Habitat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a4d7d;
+            --secondary: #e8764b;
+            --accent: #f4c430;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --error: #dc3545;
+            --gradient: linear-gradient(135deg, #1a4d7d 0%, #2d6ea0 100%);
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            background: linear-gradient(45deg, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            opacity: 0.9;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        /* Card styling */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        /* Role Selection */
+        .role-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .role-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(244, 196, 48, 0.3);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .role-description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        /* Admin Panel */
+        .admin-controls {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .session-info {
+            background: rgba(244, 196, 48, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid var(--accent);
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Team Selection */
+        .team-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input[type="text"], select {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 1.1rem;
+            font-family: 'Work Sans', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            background: var(--dark);
+            color: var(--light);
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 5px 20px rgba(26, 77, 125, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(26, 77, 125, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Teams Grid */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .team-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .team-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 5px 20px rgba(244, 196, 48, 0.3);
+        }
+
+        .team-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .team-answered {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Theme Grid */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theme-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(244, 196, 48, 0.3);
+        }
+
+        .theme-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .theme-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .theme-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Question Display */
+        .question-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(244, 196, 48, 0.5);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .question-number {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .question-type {
+            background: rgba(244, 196, 48, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .answer-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .answer-option:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .answer-option.selected {
+            background: rgba(244, 196, 48, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 5px 20px rgba(244, 196, 48, 0.3);
+        }
+
+        .answer-option.correct {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: var(--success);
+        }
+
+        .answer-option.incorrect {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: var(--error);
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-label {
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        /* Waiting State */
+        .waiting-message {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(244, 196, 48, 0.1);
+            border-radius: 15px;
+            border: 2px dashed var(--accent);
+        }
+
+        .waiting-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Scores */
+        .scores-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .score-rank {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent);
+            width: 50px;
+        }
+
+        .score-name {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .score-points {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        /* Review */
+        .review-container {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .review-question {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .review-number {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .review-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .review-answer {
+            background: rgba(40, 167, 69, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid var(--success);
+            margin: 1rem 0;
+        }
+
+        .review-explanation {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .question-text {
+                font-size: 1.3rem;
+            }
+
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-selection {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-waiting {
+            background: var(--accent);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>QUIZ ANGERS LOIRE HABITAT</h1>
+            <p class="subtitle">Challenge Multi-Joueurs en Temps Réel</p>
+            <div class="mode-badge">
+                <span class="status-indicator status-online"></span>
+                Mode Multi-Joueurs Actif
+            </div>
+        </header>
+
+        <!-- Role Selection Screen -->
+        <div id="roleScreen" class="card">
+            <h2 class="text-center" style="font-size: 2rem; margin-bottom: 2rem;">Choisissez votre rôle</h2>
+            <div class="role-selection">
+                <div class="role-card" onclick="selectRole('admin')">
+                    <div class="role-icon">👨‍💼</div>
+                    <div class="role-title">Administrateur</div>
+                    <div class="role-description">
+                        Créer la session, gérer les équipes, lancer les questions
+                    </div>
+                </div>
+                <div class="role-card" onclick="selectRole('player')">
+                    <div class="role-icon">🎮</div>
+                    <div class="role-title">Joueur</div>
+                    <div class="role-description">
+                        Rejoindre une session existante et répondre aux questions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Setup Screen -->
+        <div id="adminSetupScreen" class="hidden card">
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">Configuration Administrateur</h2>
+            
+            <div class="admin-controls">
+                <button class="btn-primary" onclick="createSession()">
+                    🎯 Créer une Nouvelle Session
+                </button>
+                
+                <div id="sessionIdDisplay" class="hidden">
+                    <div class="session-info">
+                        ID de Session : <span id="sessionId"></span>
+                    </div>
+                    <p style="text-align: center; margin-top: 1rem; opacity: 0.8;">
+                        Partagez cet ID avec les participants
+                    </p>
+                </div>
+            </div>
+
+            <div id="teamManagement" class="hidden">
+                <h3 style="margin: 2rem 0 1rem 0; font-size: 1.5rem;">Gestion des Équipes</h3>
+                <div class="team-input">
+                    <input type="text" id="teamNameInput" placeholder="Nom de l'équipe..." maxlength="30">
+                    <button class="btn-primary" onclick="addTeam()">Ajouter Équipe</button>
+                </div>
+                
+                <div id="teamsGrid" class="teams-grid"></div>
+
+                <div class="controls mt-2">
+                    <button class="btn-success" onclick="startQuizSession()" style="font-size: 1.2rem; padding: 1.5rem 3rem;">
+                        🚀 Lancer le Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Join Screen -->
+        <div id="playerJoinScreen" class="hidden card">
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">Rejoindre une Session</h2>
+            
+            <div class="team-input">
+                <input type="text" id="sessionIdInput" placeholder="Entrez l'ID de session..." maxlength="10">
+                <button class="btn-primary" onclick="validateSession()">Vérifier</button>
+            </div>
+
+            <div id="teamSelection" class="hidden">
+                <h3 style="margin: 2rem 0 1rem 0; font-size: 1.5rem;">Sélectionnez votre équipe</h3>
+                <select id="teamSelect" size="5" style="width: 100%; min-height: 200px;">
+                </select>
+                <div class="controls mt-2">
+                    <button class="btn-primary" onclick="joinAsTeam()">Rejoindre en tant que cette équipe</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Selection Screen (Admin Only) -->
+        <div id="themeScreen" class="hidden card">
+            <h2 class="text-center" style="font-size: 2rem; margin-bottom: 2rem;">Sélectionnez une Thématique</h2>
+            <div id="themeGrid" class="theme-grid"></div>
+            <div class="controls mt-2">
+                <button class="btn-secondary" onclick="showFinalScores()">📊 Voir le Classement Général</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="hidden">
+            <div class="card">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question-header">
+                        <div class="question-number" id="questionNumber">Question 1/15</div>
+                        <div class="question-type" id="questionType">QCM</div>
+                    </div>
+                    <div class="question-text" id="questionText"></div>
+                    <div id="answersGrid" class="answers-grid"></div>
+                </div>
+
+                <div id="playerWaiting" class="hidden waiting-message">
+                    <div class="waiting-icon">⏳</div>
+                    <h3>Réponse enregistrée !</h3>
+                    <p>En attente des autres équipes...</p>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-primary" onclick="submitAnswer()" id="submitBtn">Valider ma Réponse</button>
+                    <button class="btn-secondary hidden" onclick="nextQuestion()" id="nextBtn">Question Suivante</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem;">État des Équipes</h3>
+                <div id="teamAnswersGrid" class="teams-grid"></div>
+            </div>
+        </div>
+
+        <!-- Scores Screen -->
+        <div id="scoresScreen" class="hidden card">
+            <h2 class="text-center" style="font-size: 2.5rem; margin-bottom: 2rem;">
+                Classement - <span id="currentThemeName"></span>
+            </h2>
+            <div id="scoresContainer" class="scores-grid"></div>
+            <div class="controls mt-2">
+                <button class="btn-primary" onclick="showReview()">📖 Voir les Réponses</button>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div id="reviewScreen" class="hidden card">
+            <h2 class="text-center" style="font-size: 2.5rem; margin-bottom: 2rem;">
+                Récapitulatif - <span id="reviewThemeName"></span>
+            </h2>
+            <div id="reviewContainer" class="review-container"></div>
+            <div class="controls mt-2">
+                <button class="btn-primary" onclick="backToThemes()">🎯 Nouvelle Thématique</button>
+            </div>
+        </div>
+
+        <!-- Final Scores Screen -->
+        <div id="finalScoresScreen" class="hidden card">
+            <h2 class="text-center" style="font-size: 3rem; margin-bottom: 2rem;">
+                🏆 CLASSEMENT GÉNÉRAL FINAL 🏆
+            </h2>
+            <div id="finalScoresContainer" class="scores-grid"></div>
+            <div class="controls mt-2">
+                <button class="btn-primary" onclick="backToThemes()">🎯 Continuer</button>
+                <button class="btn-danger" onclick="resetSession()">🔄 Nouvelle Session</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== QUIZ DATA ====================
+        
+        // DONNÉES COMPLÈTES - Format condensé pour optimisation
+        const quizDataCompact = // DONNÉES COMPLÈTES DU QUIZ - 9 THÉMATIQUES
+{
+    "1. Principes généraux et priorités": [
+        {q:"Quel est le rôle principal du CCCP pour Angers Loire Habitat ?",t:"QCM",a:["Un document indicatif sans valeur prescriptive","Un outil prescriptif rappelant les attentes de l'OPH","Un guide architectural optionnel","Un document exclusivement réglementaire"],c:1,e:"Le CCCP est explicitement défini comme un outil prescriptif, adapté aux programmes et aux clientèles, servant de rappel des attentes et exigences de l'OPH.",r:"CCCP - Préambule"},
+        {q:"Angers Loire Habitat limite ses exigences aux seules obligations réglementaires.",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Le document précise clairement que les exigences vont au-delà des obligations réglementaires, notamment sur les volets environnementaux, d'usage et d'accessibilité.",r:"CCCP - Préambule"},
+        {q:"Quelle orientation doit être évitée pour les logements, sauf contrainte spécifique ?",t:"QCM",a:["Est","Ouest","Nord","Sud"],c:2,e:"Les logements mono-orientés Nord sont à éviter, sauf contraintes topographiques avérées.",r:"CCCP - Le logement"},
+        {q:"La séparation des espaces jour et nuit constitue une attente explicite du CCCP.",t:"Vrai/Faux",a:["Vrai","Faux"],c:0,e:"La séparation jour/nuit est listée comme une exigence fonctionnelle visant le confort d'usage et l'intimité des occupants.",r:"CCCP - Le logement"},
+        {q:"Pour quels types de logements la priorité PMR est-elle explicitement mentionnée ?",t:"QCM",a:["T4 et T5","Tous les logements","T2 et T3","Uniquement les logements séniors"],c:2,e:"Les logements PMR sont prioritaires sur les T2 et T3, avec des dispositifs favorisant l'évolutivité.",r:"CCCP - Le logement"},
+        {q:"La cuisine doit être totalement fermée afin de limiter les nuisances.",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"La cuisine doit être semi-ouverte, avec une cloison toute hauteur permettant une délimitation fonctionnelle sans rupture d'usage avec le séjour.",r:"CCCP - Cuisine"},
+        {q:"Quelle est la surface minimale exigée pour un séjour en T3 ?",t:"QCM",a:["20 m²","21 m²","22 m²","24 m²"],c:2,e:"Le tableau des surfaces habitables fixe la surface minimale du séjour d'un T3 à 22 m² SH.",r:"CCCP - Surfaces"},
+        {q:"L'accès au balcon ou à la terrasse doit se faire sans ressaut pour les logements accessibles.",t:"Vrai/Faux",a:["Vrai","Faux"],c:0,e:"Un ressaut maximal de 2 cm est toléré afin de garantir l'accessibilité PMR vers les espaces extérieurs.",r:"CCCP - Séjour"},
+        {q:"Quel est le nombre maximal de logements recommandé par entrée en collectif ?",t:"QCM",a:["15 logements","20 logements","25 logements","30 logements"],c:1,e:"Le CCCP limite volontairement le nombre de logements par entrée à une vingtaine afin de conserver une échelle résidentielle et qualitative.",r:"CCCP - Entrée"},
+        {q:"Les halls d'entrée doivent comporter un sas systématique pour des raisons thermiques.",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Le CCCP précise explicitement : Hall d'entrée sans sas, avec traitement soigné de l'isolation des circulations en rez-de-chaussée.",r:"CCCP - Entrée"},
+        {q:"Quel dispositif énergétique est attendu dans la conception des bâtiments ?",t:"QCM",a:["Chauffage exclusivement gaz","Géothermie obligatoire","Photovoltaïque en autoconsommation des parties communes","Absence de production locale d'énergie"],c:2,e:"Le CCCP impose l'intégration de solaire photovoltaïque en autoconsommation pour les parties communes.",r:"CCCP - Conception"},
+        {q:"La biodiversité est traitée uniquement en périphérie du site.",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Le document impose un recensement des espèces sur site et la mise en œuvre de mesures concrètes (nichoirs, pierriers, infiltration à la parcelle).",r:"CCCP - Biodiversité"},
+        {q:"Pourquoi Angers Loire Habitat est-il particulièrement vigilant sur le respect des surfaces habitables ?",t:"QCM",a:["Pour faciliter la commercialisation","Pour respecter les normes incendie","Pour garantir le confort et maîtriser les loyers","Pour simplifier la conception"],c:2,e:"Chaque m² supplémentaire impacte directement le loyer  le respect strict des surfaces est donc un levier de maîtrise économique et sociale.",r:"CCCP - Surfaces"},
+        {q:"Un dépassement ponctuel des surfaces est encouragé pour améliorer le confort.",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Le CCCP insiste sur le respect strict des surfaces demandées, précisément pour éviter toute dérive de loyer.",r:"CCCP - Surfaces"},
+        {q:"Quelle est la profondeur minimale exigée pour un balcon ?",t:"QCM",a:["1,50 m","1,70 m","1,90 m","2,20 m"],c:2,e:"La profondeur minimale de 1,90 m est exigée afin de garantir un usage réel (repas, détente).",r:"CCCP - Balcon"}
+    ],
+    
+    "2. Logement Sénior": [
+        {q:"Quelles sont les dimensions optimales de la chambre principale (hors placard) ?",t:"QCM",a:["320 cm x 280 cm","380 cm x 290 cm","420 cm x 310 cm","450 cm x 350 cm"],c:2,e:"Les dimensions optimales sont de 420 cm x 310 cm, auxquelles s'ajoute un placard de 60 cm x 120 cm minimum.",r:"CCCP - Logement Sénior"},
+        {q:"Quelle est la distance minimale requise de chaque côté du lit dans la chambre principale ?",t:"QCM",a:["60 cm","70 cm","80 cm","90 cm"],c:3,e:"Une distance de 90 cm de chaque côté du lit permet le passage d'un fauteuil roulant ou l'installation d'un lève-personne.",r:"CCCP - Logement Sénior"},
+        {q:"Quelle est la largeur de passage minimale au pied du lit dans la chambre ?",t:"QCM",a:["90 cm","100 cm","110 cm","120 cm"],c:3,e:"La largeur de passage minimale au pied du lit est de 120 cm pour permettre une circulation aisée.",r:"CCCP - Logement Sénior"},
+        {q:"Comment doit être positionnée la tête du lit par rapport à la fenêtre ?",t:"QCM",a:["Parallèle à la fenêtre","Face à la fenêtre","Perpendiculaire à la fenêtre","Peu importe l'orientation"],c:2,e:"La tête du lit doit être perpendiculaire à la fenêtre pour éviter d'être aveuglé et offrir une vue vers l'extérieur.",r:"CCCP - Logement Sénior"},
+        {q:"Quelles dimensions minimales sont requises pour le placard de la chambre principale ?",t:"QCM",a:["50 cm x 100 cm","60 cm x 120 cm","70 cm x 140 cm","80 cm x 150 cm"],c:1,e:"Un placard avec portes coulissantes de 60 cm x 120 cm minimum doit être prévu.",r:"CCCP - Logement Sénior"},
+        {q:"Quel dispositif d'éclairage spécifique doit être installé entre la chambre et les autres pièces ?",t:"QCM",a:["Des veilleuses branchées sur prise","Un chemin lumineux avec éclairage nocturne LED sans éblouissement","Un éclairage central puissant","Des interrupteurs phosphorescents uniquement"],c:1,e:"Un chemin lumineux avec éclairage nocturne LED doit être installé entre la chambre et les WC, SDE et cuisine.",r:"CCCP - Logement Sénior"},
+        {q:"Comment doivent être commandés tous les volets roulants du logement ?",t:"QCM",a:["Manuellement avec sangle","Par télécommande sans fil uniquement","Motorisés avec inverseur filaire et micro-module domotique","Par manivelle"],c:2,e:"Tous les volets roulants sont motorisés, filaires et commandés par inverseur avec micro-module domotique.",r:"CCCP - Logement Sénior"},
+        {q:"Que permet le bouton de sortie de logement relié à la domotique ?",t:"QCM",a:["Uniquement l'extinction des lumières","Commande centralisée : éteindre luminaires, fermer VR, chauffage en mode éco","Seulement la fermeture de la porte d'entrée","Activer l'alarme uniquement"],c:1,e:"Le bouton éco-touch permet une commande centralisée : éteindre luminaires, fermer volets, mettre chauffage en éco.",r:"CCCP - Logement Sénior"},
+        {q:"Quel type de revêtement de sol est préconisé dans toutes les pièces sèches du logement ?",t:"QCM",a:["Carrelage uniquement","Parquet flottant","Revêtement PVC U2SP3","Moquette épaisse"],c:2,e:"Le revêtement PVC U2SP3 offre un meilleur confort dans le déplacement et un bon roulement des fauteuils roulants.",r:"CCCP - Logement Sénior"},
+        {q:"Dans la cuisine, quelle distance minimale de rayon de giration doit être respectée ?",t:"QCM",a:["120 cm","130 cm","140 cm","150 cm"],c:3,e:"Le rayon de giration de 150 cm doit être respecté pour permettre la manœuvre d'un fauteuil roulant.",r:"CCCP - Logement Sénior"},
+        {q:"Comment doivent être positionnés l'évier et la plaque de cuisson dans la cuisine ?",t:"QCM",a:["Éloignés l'un de l'autre pour la sécurité","Proches l'un de l'autre pour faire glisser une casserole sans la soulever","L'évier obligatoirement sous la fenêtre","Peu importe leur positionnement"],c:1,e:"L'évier et la plaque doivent être proches pour pouvoir faire glisser une casserole de l'un à l'autre sans la soulever.",r:"CCCP - Logement Sénior"},
+        {q:"Quelles sont les dimensions minimales recommandées pour une douche adaptée ?",t:"QCM",a:["80 cm x 100 cm","90 cm x 110 cm","90 cm x 120 cm","100 cm x 140 cm"],c:2,e:"La douche doit avoir une dimension minimum de 90 cm x 120 cm, en niche avec 3 parois faïencées.",r:"CCCP - Logement Sénior"},
+        {q:"Combien de porte(s) à galandage maximum doit comporter le logement ?",t:"QCM",a:["Aucune porte à galandage n'est autorisée","1 porte à galandage de 100 cm max, soit SDB soit chambre","2 portes à galandage obligatoires","Des portes à galandage dans toutes les pièces"],c:1,e:"Le logement doit posséder 1 porte à galandage de largeur 100 cm maximum, soit dans la SDB, soit dans la chambre.",r:"CCCP - Logement Sénior"},
+        {q:"Quel système de domotique est préconisé pour le logement senior ?",t:"QCM",a:["KNX standard","OGGA Eco Touch avec protocole EnOcean","Z-Wave","Système propriétaire fermé"],c:1,e:"Le système OGGA Eco Touch basé sur le protocole EnOcean est préconisé avec garantie 5 ans.",r:"CCCP - Logement Sénior"}
+    ],
+    
+    "3. Chauffage et ECS": [
+        {q:"Quel est le mode de distribution de chaleur préconisé ?",t:"QCM",a:["Distribution par air chaud via gaines","Distribution électrique directe par convecteurs","Distribution eau chaude via radiateurs ou planchers chauffants","Distribution mixte selon les logements"],c:2,e:"La distribution sera effectuée par eau chaude via radiateurs ou planchers chauffants.",r:"CCCP - Chauffage"},
+        {q:"Quelle est la solution de chauffage préconisée pour un logement individuel ?",t:"QCM",a:["Chaudière gaz à condensation","Pompe à chaleur air/eau (Atlantic Alfea ou Saunier Duval Genia)","Chauffage électrique direct","Raccordement au réseau de chaleur"],c:1,e:"Pour les logements individuels, PAC air/eau Atlantic Alfea Extensa A.I. R32 ou Saunier Duval Genia.",r:"CCCP - Chauffage"},
+        {q:"Quelle est la particularité de la pompe à chaleur pour les logements intermédiaires ?",t:"QCM",a:["Elle est géothermique","Elle est sur air extrait, sans unité extérieure (Nibe)","Elle est hybride avec chaudière gaz","Elle fonctionne uniquement en été"],c:1,e:"Pour logements intermédiaires, PAC air/eau monobloc sur air extrait sans unité extérieure de marque Nibe.",r:"CCCP - Chauffage"},
+        {q:"Quelle est la solution prioritaire pour le chauffage d'un logement collectif ?",t:"QCM",a:["Pompe à chaleur collective","Chaudière gaz collective","Réseau de chaleur si présent","Chauffage électrique individuel"],c:2,e:"La première solution préconisée pour les collectifs est le réseau de chaleur s'il est présent sur le site.",r:"CCCP - Chauffage"},
+        {q:"Quel type de thermostat d'ambiance est préconisé ?",t:"QCM",a:["Thermostat connecté wifi","Thermostat à pile","Thermostat filaire (pas à pile)","Thermostat programmable radio"],c:2,e:"Le cahier prescrit un thermostat d'ambiance filaire (pas à pile) pour logements individuels et intermédiaires.",r:"CCCP - Chauffage"},
+        {q:"Quel type de système de production d'ECS est préconisé ?",t:"QCM",a:["Système à accumulation","Système semi-instantané","Système instantané avec accumulation d'énergie primaire","Chauffe-eau électrique individuel"],c:2,e:"Les systèmes à accumulation ou semi instantanés sont à proscrire au profit des systèmes instantanés avec accumulation d'énergie primaire.",r:"CCCP - ECS"},
+        {q:"Quelle température de départ ECS doit être garantie pour se prémunir des risques de légionelle ?",t:"QCM",a:["50°C","55°C","60°C","65°C"],c:2,e:"La production ECS doit fournir une température de départ de 60°C pour se prémunir des risques de légionelle.",r:"CCCP - ECS"},
+        {q:"Quel système de télégestion doit être mis en place pour les systèmes collectifs ?",t:"QCM",a:["Système propriétaire du fabricant","Système WIT","Système KNX","Système Modbus uniquement"],c:1,e:"Pour les systèmes collectifs, télégestion WIT compatible avec le système d'Angers Loire Habitat.",r:"CCCP - Chauffage"},
+        {q:"Comment doivent être configurées les pompes de distribution pour sécuriser l'installation ?",t:"QCM",a:["En série","Doublées en permutation","En cascade","Avec variateur uniquement"],c:1,e:"Les pompes de distribution doivent être doublées pour fonctionner en permutation.",r:"CCCP - Chauffage"},
+        {q:"Quel est le régime de température préconisé pour le chauffage ?",t:"QCM",a:["Haute température (70-90°C)","Moyenne température (50-70°C)","Basse température (30-60°C)","Très basse température (20-40°C)"],c:2,e:"Le régime de température exercé est dit basse température avec un réseau allant de 30°C à 60°C.",r:"CCCP - Chauffage"},
+        {q:"Quelle est la température maximale des têtes thermostatiques sur les radiateurs des pièces de vie ?",t:"QCM",a:["19°C","21°C","23°C","25°C"],c:1,e:"Les radiateurs des pièces de vie sont équipés de têtes thermostatiques limitées à 21°C max à technologie gaz.",r:"CCCP - Chauffage"},
+        {q:"Quelle est la température minimale à maintenir dans le réseau ECS bouclé ?",t:"QCM",a:["40°C","45°C","50°C","55°C"],c:2,e:"Pour être conforme à l'arrêté du 30 novembre 2005 et DTU 60.11, la température du réseau doit être au minimum à 50°C.",r:"CCCP - ECS"}
+    ],
+    
+    "4. Portes Coulissantes et Portails": [
+        {q:"Quel type de vitrage est prescrit pour les portes coulissantes motorisées de hall ?",t:"QCM",a:["Simple vitrage sécurit","Double vitrage feuilleté face intérieure et sécurit face extérieure","Triple vitrage","Double vitrage sécurit des deux faces"],c:1,e:"Double vitrage feuilleté face intérieure et sécurit face extérieure avec Ud < 1.90 W/m².K.",r:"CCCP - Portes"},
+        {q:"À quelle norme doivent répondre les portes coulissantes automatiques ?",t:"QCM",a:["EN 13241-1","EN 16005","NF P25-362","ISO 9001"],c:1,e:"Les portes coulissantes automatiques doivent répondre à la norme EN 16005.",r:"CCCP - Portes"},
+        {q:"Quelles sont les marques préconisées pour les portes coulissantes de hall ?",t:"QCM",a:["SAFIR ou Doitrand","Cib'slide de CIBOX ou Portadapte de Decayeux","URMET ou VIGIK","Aucune marque spécifique"],c:1,e:"Les marques préconisées sont : Cib'slide de chez CIBOX, Portadapte coulissante de chez Decayeux.",r:"CCCP - Portes"},
+        {q:"Quelle est la force des ventouses électromagnétiques pour la fermeture renforcée ?",t:"QCM",a:["150 kgs","200 kgs","300 kgs","500 kgs"],c:2,e:"La fermeture renforcée est assurée par deux ventouses électromagnétiques de 300 kgs.",r:"CCCP - Portes"},
+        {q:"Quel type de porte de garage doit être mis en place par défaut ?",t:"QCM",a:["Porte sectionnelle","Porte basculante non débordante","Porte accordéon","Porte enroulable"],c:1,e:"Par défaut, il doit être mis en place une porte basculante non débordante.",r:"CCCP - Portails"},
+        {q:"Quelle est la marque de matériel préconisée pour les portes de garage automatiques ?",t:"QCM",a:["CIBOX","Decayeux","SAFIR","URMET"],c:2,e:"Le matériel préconisé est de marque SAFIR. Doitrand et fabrication artisanale sont à proscrire.",r:"CCCP - Portails"},
+        {q:"Quelle est la prescription concernant la sécurité à proximité de la porte basculante ?",t:"QCM",a:["Installer uniquement des feux clignotants","Un barrage anti ouverture/fermeture et peinture zébras noir/jaune obligatoire","Mettre en place un panneau de signalisation uniquement","Installer une alarme sonore"],c:1,e:"Prévoir un barrage anti ouverture/fermeture lors de la manœuvre d'un véhicule et peinture de sol avec zébras noir et jaune obligatoire.",r:"CCCP - Portails"},
+        {q:"Quel système de contrôle d'accès est préconisé pour les portails ?",t:"QCM",a:["Système KNX","Système MEMOBIP4B URMET (Bi technologie)","Système Z-Wave","Système Bluetooth"],c:1,e:"Système HF (Télécommande Bi technologie) de type MEMOBIP4B URMET avec programmation logiciel visiosoft web.",r:"CCCP - Portails"}
+    ],
+    
+    "5. Menuiseries Intérieures et Extérieures": [
+        {q:"En quels matériaux doivent être réalisées les pièces de quincaillerie ?",t:"QCM",a:["PVC ou nylon","Acier inoxydable ou aluminium moulé","Zinc","Plastique renforcé"],c:1,e:"Toutes les pièces de quincaillerie seront réalisées en acier inoxydable ou en aluminium moulé. PVC ou nylon interdits.",r:"CCCP - Menuiseries"},
+        {q:"Combien de paumelles faut-il prévoir sur une menuiserie ouvrant à la française de hauteur supérieure à 1,20m ?",t:"QCM",a:["2 paumelles","3 paumelles","4 paumelles","5 paumelles"],c:2,e:"Sur menuiserie ouvrant à la française, 3 paumelles jusqu'à 1,20m, et 4 paumelles au-delà.",r:"CCCP - Menuiseries"},
+        {q:"Quelle est la hauteur réglementaire des poignées de manœuvre selon PMR ?",t:"QCM",a:["0,70m à 1,10m","0,80m à 1,20m","0,90m à 1,30m","1,00m à 1,40m"],c:2,e:"Les poignées de manœuvre seront d'une hauteur comprise entre 0,90m et 1,30m selon réglementation PMR.",r:"CCCP - Menuiseries"},
+        {q:"Quel est le pourcentage minimum de PVC recyclé recommandé pour les menuiseries ?",t:"QCM",a:["10% minimum","20% minimum","30% minimum","50% minimum"],c:2,e:"L'usage de PVC recyclé à hauteur de 30% minimum est recommandé.",r:"CCCP - Menuiseries"},
+        {q:"Quelle marque de menuiserie PVC est explicitement à proscrire ?",t:"QCM",a:["Bouvet","Batistyl","Grosfillex","Fenetrea"],c:2,e:"Le modèle doit être à profilés minces type Bouvet, Batistyl, Fenetrea. Grosfillex est à proscrire.",r:"CCCP - Menuiseries"},
+        {q:"Comment doivent être constituées les allèges vitrées ?",t:"QCM",a:["Double vitrage standard des deux côtés","Face extérieure vitrage feuilleté anti-chute, face intérieure vitrage opale","Triple vitrage","Vitrage securit des deux faces"],c:1,e:"Les allèges vitrées : face extérieure vitrage feuilleté anti chute, face intérieure vitrage opale.",r:"CCCP - Menuiseries"},
+        {q:"Dans quel cas les portes-fenêtres coulissantes en PVC sont-elles autorisées ?",t:"QCM",a:["Jamais autorisées","Toujours autorisées","Uniquement selon projet architectural","Uniquement en rez-de-chaussée"],c:2,e:"Si menuiserie PVC, porte-fenêtre ouvrant à la française, coulissant autorisé uniquement selon projet architectural.",r:"CCCP - Menuiseries"},
+        {q:"Quelle proportion du tablier de volet roulant doit être ajouré ?",t:"QCM",a:["1/3 de la surface","1/2 de la surface","2/3 de la surface","3/4 de la surface"],c:2,e:"Le tablier en lames PVC doit comporter une ajouration sur les 2/3 de la surface du tablier.",r:"CCCP - Menuiseries"},
+        {q:"Sur quelles baies la manœuvre électrique des volets roulants est-elle systématique ?",t:"QCM",a:["Toutes les baies","Uniquement au rez-de-chaussée","Sur les grandes baies (sauf SDB/WC éventuel)","Uniquement sur les portes-fenêtres"],c:2,e:"Manœuvre électrique systématique sur les grandes baies (sauf SDB/WC éventuel).",r:"CCCP - Menuiseries"},
+        {q:"De quoi doivent obligatoirement être équipées les portes palières ?",t:"QCM",a:["Uniquement d'une serrure renforcée","D'un micro-viseur et d'un entrebailleur","D'un judas électronique","D'une ferme-porte hydraulique"],c:1,e:"Les portes palières seront équipées d'un micro-viseur et d'un entrebailleur. Paumelles réglables tri-dimensionnelles.",r:"CCCP - Menuiseries"},
+        {q:"Les cylindres de portes sur organigramme sont-ils autorisés ?",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Les cylindres de portes sur organigramme sont à proscrire.",r:"CCCP - Menuiseries"},
+        {q:"Quel type de façade doit être prévu pour un placard de largeur supérieure à 80 cm ?",t:"QCM",a:["Façade pivotante","Façade coulissante","Façade battante","Façade pliante"],c:1,e:"Les placards d'une largeur inférieure à 80 cm auront une façade pivotante. Au-delà de 80 cm, prévoir façade coulissante.",r:"CCCP - Menuiseries"},
+        {q:"Quel type de serrure doit équiper les portes de gaine technique ?",t:"QCM",a:["Serrure standard à clé","Serrure à batteuse, à mortaiser avec triangle type ENEDIS","Serrure électronique","Serrure à code"],c:1,e:"La porte de gaine doit comporter 1 serrure à batteuse, à mortaiser avec triangle type ENEDIS.",r:"CCCP - Menuiseries"},
+        {q:"Combien de paumelles faut-il prévoir par vantail de porte de gaine ?",t:"QCM",a:["3 paumelles de 120, invisibles autorisées","4 paumelles de 140, invisibles à proscrire","3 paumelles de 140, invisibles à proscrire","5 paumelles de 120, tous types autorisés"],c:1,e:"Il faut 4 paumelles de 140 par vantail. Charnières invisibles à proscrire.",r:"CCCP - Menuiseries"}
+    ],
+    
+    "6. Plomberie et VMC": [
+        {q:"En quel matériau doit être l'alimentation eau froide enterrée si compteur hors bâtiment ?",t:"QCM",a:["Cuivre à sertir","PVC pression","Tube semi-rigide polyéthylène","Acier galvanisé"],c:2,e:"Si compteur général AEP hors bâtiment, alimentation eau froide enterrée en tube semi-rigide polyéthylène.",r:"CCCP - Plomberie"},
+        {q:"Quels sont les deux matériaux à proscrire pour les colonnes montantes eau froide ?",t:"QCM",a:["Cuivre et PER","PVC pression et acier galvanisé","Multicouches et cuivre","Polyéthylène et multicouches"],c:1,e:"Les colonnes montantes doivent être en cuivre/PER/multicouches à sertir. PVC pression et acier galvanisé sont à proscrire.",r:"CCCP - Plomberie"},
+        {q:"Quel équipement doit obligatoirement être prévu sur chaque pied de colonne montante ?",t:"QCM",a:["Un clapet anti-retour uniquement","Une vanne de coupure avec purge","Un réducteur de pression uniquement","Un compteur divisionnaire"],c:1,e:"Prévoir colonne montante équipée d'une vanne de coupure, avec purge, sur chaque pied de colonne.",r:"CCCP - Plomberie"},
+        {q:"Quel type de PVC et système sont imposés pour les évacuations verticales en logement ?",t:"QCM",a:["PVC standard, système libre","PVC acoustique, système chutunic","PVC renforcé, système classique","PVC pression, système au choix"],c:1,e:"Vertical en PVC acoustique. Imposer le système de la chutunic.",r:"CCCP - Plomberie"},
+        {q:"Les clapets de décompression sont-ils autorisés ?",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"Les clapets de décompression sont interdits.",r:"CCCP - Plomberie"},
+        {q:"En quel matériau doivent être les évacuations en parties communes ?",t:"QCM",a:["PVC acoustique","Fonte SMU (impératif dans les parkings)","Cuivre","Multicouches"],c:1,e:"Horizontal et vertical en fonte SMU, impératif dans les parkings.",r:"CCCP - Plomberie"},
+        {q:"Quelles sont les caractéristiques de l'évier de cuisine prescrit ?",t:"QCM",a:["1 bac et un égouttoir (dimension 100)","2 bacs sans égouttoir (dimension 120)","2 bacs et un égouttoir (dimension 120) en matériau minéral composite","1 bac et deux égouttoirs (dimension 140)"],c:2,e:"Évier 2 bacs et un égouttoir (dimension 120) en matériau minéral composite.",r:"CCCP - Plomberie"},
+        {q:"Quel type de mécanisme économiseur d'eau doit équiper le réservoir de WC ?",t:"QCM",a:["Simple commande 6 litres","Double commande 3/6 litres","Simple commande 9 litres","Double commande 4/8 litres"],c:1,e:"Réservoir en céramique émaillée équipé de mécanisme économiseur d'eau à double commande 3/6 litres.",r:"CCCP - Plomberie"},
+        {q:"Les douches à l'italienne sont-elles autorisées en construction neuve ?",t:"Vrai/Faux",a:["Vrai","Faux"],c:1,e:"En neuf, principe de douche selon réglementation accessibilité PMR (zéro ressaut systématique). Douches à l'italienne à proscrire.",r:"CCCP - Plomberie"},
+        {q:"Quel type de fermeture de douche est privilégié ?",t:"QCM",a:["Rideau de douche","2 parois fixes, porte coulissante, verre 4 mm","3 parois fixes faïencées, porte battante en verre sécurité 5 mm min","4 parois fixes, porte pliante, verre 6 mm"],c:2,e:"Privilégier 3 parois fixes faïencées, fermeture par porte battante en verre de sécurité épaisseur 5 mm minimum.",r:"CCCP - Plomberie"},
+        {q:"Quel est le classement ECAU requis pour les mitigeurs mécaniques ?",t:"QCM",a:["NF E1 C2 A1 U2","NF E1 C3 A2 U3","NF E2 C3 A2 U2","NF E1 C2 A3 U3"],c:1,e:"Mitigeurs mécaniques à cartouche céramique NF E1 C3 A2 U3 avec garantie constructeur 5 ans minimum.",r:"CCCP - Plomberie"},
+        {q:"À quelle température maximale doivent être réglées les robinetteries de salle de bain ?",t:"QCM",a:["40°C","45°C","50°C","55°C"],c:2,e:"Pour les robinetteries salle de bain, elles devront être réglées avec une T°C maximum de 50°C.",r:"CCCP - Plomberie"},
+        {q:"Quel type de VMC doit être installé en logement collectif et individuel ?",t:"QCM",a:["VMC simple flux autoréglable","VMC simple flux hygroréglable de type A","VMC simple flux hygroréglable de type B","VMC double flux"],c:2,e:"Ventilation mécanique contrôlée simple flux hygroréglable de type B (Marque Atlantic ou VIM).",r:"CCCP - Plomberie VMC"},
+        {q:"Comment doit être contrôlé le grand débit de la bouche d'extraction de cuisine ?",t:"QCM",a:["Par pile (autonome)","Par détecteur de présence sur pile","Par bouton poussoir raccordé électriquement (pile à proscrire)","Automatiquement par l'humidité uniquement"],c:2,e:"Pour la cuisine, contrôle du grand débit via un bouton poussoir raccordé électriquement. Pile à proscrire.",r:"CCCP - VMC"},
+        {q:"Quels sont les matériaux autorisés pour les canalisations d'eau chaude ?",t:"QCM",a:["PVC pression et acier galvanisé","Cuivre à sertir ou multicouches","Polyéthylène standard uniquement","Acier noir uniquement"],c:1,e:"Alimentation en tube cuivre à sertir ou multicouches.",r:"CCCP - Plomberie"}
+    ],
+    
+    "7. Terrasses et Balcons": [
+        {q:"Quels sont les modes de fixation autorisés pour les barres accroches échelles ?",t:"QCM",a:["Scellement chimique ou goujons mécaniques uniquement","Vissage simple","Collage","Tous les moyens de fixation"],c:0,e:"Barres accroches échelles fixées soit par scellement chimique ou par goujons mécaniques. Aucun autre moyen toléré.",r:"CCCP - Terrasses"},
+        {q:"En quels matériaux doivent être réalisées les barres accroches échelles ?",t:"QCM",a:["PVC renforcé ou bois","Acier noir uniquement","Acier galvanisé ou aluminium","Composite uniquement"],c:2,e:"Les barres devront être soit en acier galvanisé ou en aluminium. Aucun autre matériau toléré.",r:"CCCP - Terrasses"},
+        {q:"Dans quel sens doivent s'ouvrir les trappes d'accès combles ?",t:"QCM",a:["À tirer vers le dernier étage","À pousser vers le comble avec système de vérins hydraulique","Coulissante latérale","Sens libre au choix"],c:1,e:"Ouverture à tirer vers dernier étage proscrite. Toutes les ouvertures doivent être à pousser vers comble avec vérins hydraulique.",r:"CCCP - Terrasses"},
+        {q:"Quel équipement obligatoire doit comporter l'échelle d'accès toiture ?",t:"QCM",a:["Uniquement une crosse de sortie","Des crochets obligatoires et une crosse de sortie de toiture rabattable","Un système anti-chute uniquement","Aucun équipement spécifique"],c:1,e:"Mise en place d'échelle deux pans avec présence de crochets obligatoire et crosse de sortie de toiture rabattable.",r:"CCCP - Terrasses"},
+        {q:"Quelle est la hauteur minimale d'un garde-corps fixe sur terrasse avec équipements ?",t:"QCM",a:["80 cm","90 cm","1 mètre","1,10 mètre"],c:2,e:"S'il y a des équipements techniques : garde-corps fixe hauteur minimale 1m, matériau selon projet architectural.",r:"CCCP - Terrasses"},
+        {q:"Comment doit être réalisé le cheminement d'accès à un équipement en terrasse ?",t:"QCM",a:["En béton directement sur l'étanchéité","En dalle gravillonnée, désolidarisé de l'étanchéité par couche néoprène","En caillebotis métallique directement posé","En bois traité sur l'étanchéité"],c:1,e:"Cheminement d'accès en dalle gravillonnée, désolidarisé de l'étanchéité par une couche néoprène.",r:"CCCP - Terrasses"},
+        {q:"Quelle protection doit être mise en place sur les terrasses végétalisées ?",t:"QCM",a:["Aucune protection nécessaire","Protection temporaire uniquement","Protection permanente obligatoire (garde-corps) que des équipements soient présents ou non","Protection selon projet architectural"],c:2,e:"L'entretien annuel indispensable implique de mettre en œuvre une protection permanente que des équipements soient présents ou non.",r:"CCCP - Terrasses"},
+        {q:"Quelle est la préférence architecturale entre loggias et balcons ?",t:"QCM",a:["Les balcons sont préférés","Les loggias sont préférées (intimisation et portance sur trois côtés)","Pas de préférence","Les terrasses uniquement"],c:1,e:"Le projet architectural devra préférer les loggias aux balcons, tant pour intimisation que structurel (portance sur trois côtés).",r:"CCCP - Balcons"},
+        {q:"Par quoi doit être protégée la cunette de liaison au droit des menuiseries ?",t:"QCM",a:["Acier galvanisé","Caillebotis résine (acier galvanisé à proscrire)","PVC renforcé","Aluminium laqué"],c:1,e:"La cunette sera étanchée avec produits sous avis technique, et protégée par caillebotis résine. Acier galvanisé à proscrire.",r:"CCCP - Terrasses"},
+        {q:"Quelle proportion plein/vide doit être respectée pour les garde-corps de balcons ?",t:"QCM",a:["50/50","60/40","70/30","80/20"],c:2,e:"Une proportion de plein/vide de 70/30 sera à respecter à minima afin d'intimiser les espaces extérieurs privatifs.",r:"CCCP - Balcons"}
+    ],
+    
+    "8. Contrôle d'Accès": [
+        {q:"Quelle marque de système de contrôle d'accès est imposée ?",t:"QCM",a:["Intratone","Comelit","Aiphone","Urmet"],c:0,e:"Le système de contrôle d'accès doit être de marque Intratone.",r:"CCCP - Contrôle Accès"},
+        {q:"Quel type de clavier est spécifié pour le contrôle d'accès ?",t:"QCM",a:["Clavier lumineux rétroéclairé","Clavier à code visible","Clavier aveugle avec repère sur la touche 5 et chiffre 1 en haut à gauche","Clavier à écran tactile"],c:2,e:"Le clavier codé sera de type aveugle avec repère sur la touche 5 et le chiffre 1 en haut à gauche du 5.",r:"CCCP - Contrôle Accès"},
+        {q:"Quelle est la capacité minimale de la centrale de gestion ?",t:"QCM",a:["50 services, distante de 1 mètre","100 services, distante d'au moins 2 mètres de la tête Vigik+","150 services, distante de 3 mètres","200 services, pas de distance imposée"],c:1,e:"Centrale de gestion 4 portes pouvant recevoir 100 services. Distante d'au moins 2 mètres de la tête de lecture Vigik+.",r:"CCCP - Contrôle Accès"},
+        {q:"Quel type d'alimentation est prescrit pour le contrôle d'accès ?",t:"QCM",a:["Alimentation secourue obligatoire","Alimentation sur batterie","Alimentation non secourue (les alimentations secourues sont à proscrire)","Alimentation solaire"],c:2,e:"Alimentation non secourue. Les alimentations secourues sont à proscrire. En cas de panne, la porte d'entrée sera libérée.",r:"CCCP - Contrôle Accès"},
+        {q:"Quelle est la force du bandeau ventouse pour les portes des parties communes ?",t:"QCM",a:["2 x 200 kg","2 x 300 kg","2 x 400 kg (et non de poignée ventouse)","2 x 500 kg"],c:2,e:"Les portes pour les parties communes devront impérativement être équipées de bandeau ventouse (2x 400kg) et non de poignée ventouse.",r:"CCCP - Contrôle Accès"},
+        {q:"Comment est utilisé le câble IP en réhabilitation tous corps d'état ?",t:"QCM",a:["En câble standard 4 paires","En câble bus 2 Paires","En câble coaxial","En fibre optique uniquement"],c:1,e:"En réhabilitation tous corps d'état : le câble IP sera utilisé en câble bus 2 Paires. Mise en place de combinés main libre et matériel 2 Voices GPRS.",r:"CCCP - Contrôle Accès"}
+    ],
+    
+    "9. Espaces Verts": [
+        {q:"À quoi doit correspondre l'emprise du périmètre de protection des arbres pendant travaux ?",t:"QCM",a:["Au diamètre du tronc","À l'emprise au sol du houppier","À un rayon de 2 mètres autour du tronc","À la hauteur de l'arbre"],c:1,e:"Un périmètre de protection doit être installé autour des arbres pendant travaux. Son emprise doit s'apparenter à l'emprise au sol du houppier.",r:"CCCP - Espaces Verts"},
+        {q:"Qu'est-il interdit de faire dans le périmètre de sécurité de l'arbre ?",t:"QCM",a:["Uniquement le stockage de matériaux lourds","Stockage de matériels/matériaux (même terre ou sable) et répandre des produits chimiques","Uniquement circuler avec des engins","Uniquement planter d'autres végétaux"],c:1,e:"Aucun stockage de matériels et matériaux, même terre ou sable. Aucun produit chimique ne doit être répandu. Les arbres ne doivent pas servir de support.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la distance minimale autorisée pour réaliser une tranchée par rapport à un tronc ?",t:"QCM",a:["2 mètres","3 mètres","4 mètres","5 mètres"],c:2,e:"Aucune tranchée ne sera tolérée à moins de 4 mètres d'un tronc.",r:"CCCP - Espaces Verts"},
+        {q:"À partir de quel diamètre une racine doit-elle être sciée de manière franche ?",t:"QCM",a:["3 centimètres","5 centimètres","7 centimètres","10 centimètres"],c:1,e:"Si une racine d'un diamètre supérieur à 5 centimètres doit être coupée, elle doit être sciée de manière franche et non déchirée pour éviter les maladies.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la hauteur de la barrière anti-racine à installer pour protéger les réseaux ?",t:"QCM",a:["50 cm","80 cm","1 mètre","1,20 mètre"],c:2,e:"Une barrière anti-racine adéquate d'un mètre de hauteur devra être installée pour protéger les réseaux situés dans la tranchée.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la largeur minimale d'accès pour le passage d'engins dans les espaces verts ?",t:"QCM",a:["2 mètres","2,20 mètres","2,50 mètres","3 mètres"],c:2,e:"Prévoir un accès suffisamment large pour le passage d'engins : 2.50 m. L'ensemble des gazons devra pouvoir bénéficier d'un accès d'au moins 2.50 m.",r:"CCCP - Espaces Verts"},
+        {q:"Quels revêtements sont autorisés pour les circulations piétonnes ?",t:"QCM",a:["Béton désactivé autorisé, faluns interdits","Béton désactivé, balayé ou enrobé drainant autorisés / Faluns, poussier et arène granitique à proscrire","Tous revêtements autorisés","Uniquement enrobé drainant"],c:1,e:"Le revêtement devra être en béton désactivé, balayé ou en enrobé drainant. Les faluns, poussier et autre arène granitique sont à proscrire (Zérophyto).",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la largeur de la bande de béton balayé préconisée au pied de bâtiment ?",t:"QCM",a:["10 cm de préférence à 20 cm maxi","20 cm de préférence à 30 cm maxi","30 cm de préférence à 40 cm maxi","40 cm minimum"],c:1,e:"Une bande de béton balayé de 20 cm de préférence à 30 cm maxi dosé à 350kg et fibré. Le gravier en pied de bâtiment est à proscrire.",r:"CCCP - Espaces Verts"},
+        {q:"À quelle fréquence doivent être installées les bouches d'eau dans les espaces verts ?",t:"QCM",a:["Tous les 15 mètres","Tous les 20 mètres","Tous les 25 mètres","Tous les 30 mètres"],c:2,e:"Prévoir un point d'eau au minimum tous les 25 mètres pour assurer un arrosage efficace et pratique.",r:"CCCP - Espaces Verts"},
+        {q:"Quelles sont les distances minimales de plantation par rapport au bâtiment ?",t:"QCM",a:["Arbres 3m, Arbustes 1m","Arbres 4m, Arbustes 1,5m","Arbres 5m, Arbustes 1,5m","Arbres 6m, Arbustes 2m"],c:2,e:"Planter les arbres à 5 mètres du bâtiment. Planter les arbustes à 1,5 mètre du bâtiment.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est l'épaisseur de paillage prescrite pour les massifs après compactage ?",t:"QCM",a:["5 cm","8 cm","12 cm","15 cm"],c:2,e:"Paillage à base de plaquettes de peuplier de calibre 10/40 sur une épaisseur de 12cm après compactage. Pour plantes vivaces, 5/6 centimètres.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la période autorisée pour effectuer les plantations ?",t:"QCM",a:["Avril à juin","Mai à septembre","Octobre à mars","Toute l'année"],c:2,e:"Les plantations seront effectuées entre octobre et mars.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la pente maximale autorisée pour les pelouses ?",t:"QCM",a:["5%","10%","15%","20%"],c:1,e:"Pas de pentes supérieures à 10% pour les pelouses.",r:"CCCP - Espaces Verts"},
+        {q:"Quelle est la densité de semis prescrite pour l'engazonnement ?",t:"QCM",a:["25 g/m²","30 g/m²","35 g/m²","40 g/m²"],c:2,e:"Semis d'une densité de 35g/m².",r:"CCCP - Espaces Verts"},
+        {q:"Quel est le taux d'exigence de réussite des plantations lors du constat de reprise ?",t:"QCM",a:["85%","90%","95%","100%"],c:2,e:"Le constat de reprise des arbres est effectué entre le 15 août et le 15 octobre : exigence de réussite des plantations fixée à 95%.",r:"CCCP - Espaces Verts"}
+    ]
+}
+;
+        
+        // Fonction de conversion automatique du format condensé vers format étendu
+        function expandQuizData(compact) {
+            const expanded = {};
+            for (const [theme, questions] of Object.entries(compact)) {
+                expanded[theme] = questions.map(q => ({
+                    question: q.q,
+                    type: q.t,
+                    answers: q.a,
+                    correct: q.c,
+                    explanation: q.e,
+                    reference: q.r
+                }));
+            }
+            return expanded;
+        }
+        
+        // Conversion et assignation
+        const quizData = expandQuizData(quizDataCompact);
+
+
+        // ==================== GAME STATE ====================
+        let userRole = null;
+        let sessionId = null;
+        let teamName = null;
+        let gameState = {
+            teams: [],
+            currentTheme: null,
+            currentQuestionIndex: 0,
+            answers: {},
+            scores: {},
+            completedThemes: []
+        };
+
+        // ==================== STORAGE FUNCTIONS ====================
+        function saveGameState() {
+            if (sessionId) {
+                localStorage.setItem(`quiz_${sessionId}`, JSON.stringify(gameState));
+            }
+        }
+
+        function loadGameState() {
+            if (sessionId) {
+                const saved = localStorage.getItem(`quiz_${sessionId}`);
+                if (saved) {
+                    gameState = JSON.parse(saved);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function watchGameState() {
+            if (userRole === 'player' && sessionId) {
+                setInterval(() => {
+                    loadGameState();
+                    updatePlayerView();
+                }, 1000);
+            }
+        }
+
+        // ==================== ROLE SELECTION ====================
+        function selectRole(role) {
+            userRole = role;
+            document.getElementById('roleScreen').classList.add('hidden');
+            
+            if (role === 'admin') {
+                document.getElementById('adminSetupScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('playerJoinScreen').classList.remove('hidden');
+            }
+        }
+
+        // ==================== ADMIN FUNCTIONS ====================
+        function createSession() {
+            sessionId = Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('sessionId').textContent = sessionId;
+            document.getElementById('sessionIdDisplay').classList.remove('hidden');
+            document.getElementById('teamManagement').classList.remove('hidden');
+            
+            gameState = {
+                teams: [],
+                currentTheme: null,
+                currentQuestionIndex: 0,
+                answers: {},
+                scores: {},
+                completedThemes: []
+            };
+            saveGameState();
+        }
+
+        function addTeam() {
+            const input = document.getElementById('teamNameInput');
+            const name = input.value.trim();
+            
+            if (name && !gameState.teams.includes(name)) {
+                gameState.teams.push(name);
+                gameState.scores[name] = 0;
+                input.value = '';
+                saveGameState();
+                renderTeamsGrid();
+            }
+        }
+
+        function renderTeamsGrid() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = gameState.teams.map(team => `
+                <div class="team-card">
+                    <div class="team-name">${team}</div>
+                    <div class="team-status">Prêt</div>
+                </div>
+            `).join('');
+        }
+
+        function startQuizSession() {
+            if (gameState.teams.length < 2) {
+                alert('Ajoutez au moins 2 équipes pour commencer.');
+                return;
+            }
+            
+            document.getElementById('adminSetupScreen').classList.add('hidden');
+            document.getElementById('themeScreen').classList.remove('hidden');
+            renderThemes();
+        }
+
+        function renderThemes() {
+            const grid = document.getElementById('themeGrid');
+            const themes = Object.keys(quizData);
+            
+            grid.innerHTML = themes.map(theme => {
+                const questionCount = quizData[theme].length;
+                const isCompleted = gameState.completedThemes.includes(theme);
+                return `
+                    <div class="theme-card ${userRole === 'player' ? 'disabled' : ''}" 
+                         onclick="${userRole === 'admin' ? `selectTheme('${theme}')` : ''}">
+                        <div class="theme-title">${theme}</div>
+                        <div class="theme-info">
+                            📝 ${questionCount} questions
+                            ${isCompleted ? '<br>✅ Complétée' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectTheme(theme) {
+            if (userRole !== 'admin') return;
+            
+            gameState.currentTheme = theme;
+            gameState.currentQuestionIndex = 0;
+            gameState.answers = {};
+            saveGameState();
+            
+            document.getElementById('themeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            displayQuestion();
+            watchGameState();
+        }
+
+        // ==================== PLAYER FUNCTIONS ====================
+        function validateSession() {
+            const input = document.getElementById('sessionIdInput');
+            sessionId = input.value.trim().toUpperCase();
+            
+            if (loadGameState()) {
+                document.getElementById('teamSelection').classList.remove('hidden');
+                const select = document.getElementById('teamSelect');
+                select.innerHTML = gameState.teams.map(team => 
+                    `<option value="${team}">${team}</option>`
+                ).join('');
+            } else {
+                alert('Session introuvable. Vérifiez l\'ID.');
+            }
+        }
+
+        function joinAsTeam() {
+            const select = document.getElementById('teamSelect');
+            teamName = select.value;
+            
+            if (teamName) {
+                document.getElementById('playerJoinScreen').classList.add('hidden');
+                
+                if (gameState.currentTheme) {
+                    document.getElementById('quizScreen').classList.remove('hidden');
+                    displayQuestion();
+                    watchGameState();
+                } else {
+                    document.getElementById('themeScreen').classList.remove('hidden');
+                    renderThemes();
+                    watchGameState();
+                }
+            }
+        }
+
+        function updatePlayerView() {
+            if (gameState.currentTheme && document.getElementById('quizScreen').classList.contains('hidden')) {
+                document.getElementById('themeScreen').classList.add('hidden');
+                document.getElementById('quizScreen').classList.remove('hidden');
+                displayQuestion();
+            }
+            
+            if (!gameState.currentTheme && !document.getElementById('themeScreen').classList.contains('hidden')) {
+                renderThemes();
+            }
+            
+            renderTeamAnswersGrid();
+        }
+
+        // ==================== QUIZ FUNCTIONS ====================
+        function displayQuestion() {
+            if (!gameState.currentTheme) return;
+            
+            const question = quizData[gameState.currentTheme][gameState.currentQuestionIndex];
+            const totalQuestions = quizData[gameState.currentTheme].length;
+            
+            document.getElementById('questionNumber').textContent = 
+                `Question ${gameState.currentQuestionIndex + 1}/${totalQuestions}`;
+            document.getElementById('questionType').textContent = question.type;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const answersGrid = document.getElementById('answersGrid');
+            const hasAnswered = gameState.answers[`q${gameState.currentQuestionIndex}`]?.[teamName] !== undefined;
+            
+            answersGrid.innerHTML = question.answers.map((answer, index) => {
+                const isSelected = gameState.answers[`q${gameState.currentQuestionIndex}`]?.[teamName] === index;
+                return `
+                    <div class="answer-option ${isSelected ? 'selected' : ''} ${hasAnswered ? 'disabled' : ''}" 
+                         onclick="${!hasAnswered && userRole === 'player' ? `selectAnswer(${index})` : ''}">
+                        <span class="answer-label">${String.fromCharCode(65 + index)}.</span>
+                        <span>${answer}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update progress
+            const progress = ((gameState.currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Show/hide buttons and waiting message
+            if (userRole === 'player') {
+                document.getElementById('submitBtn').classList.toggle('hidden', hasAnswered);
+                document.getElementById('playerWaiting').classList.toggle('hidden', !hasAnswered);
+                document.getElementById('nextBtn').classList.add('hidden');
+            } else {
+                document.getElementById('submitBtn').classList.add('hidden');
+                document.getElementById('playerWaiting').classList.add('hidden');
+                const allAnswered = gameState.teams.every(t => 
+                    gameState.answers[`q${gameState.currentQuestionIndex}`]?.[t] !== undefined
+                );
+                document.getElementById('nextBtn').classList.toggle('hidden', !allAnswered);
+            }
+            
+            renderTeamAnswersGrid();
+        }
+
+        function selectAnswer(index) {
+            if (userRole !== 'player') return;
+            
+            const options = document.querySelectorAll('.answer-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+        }
+
+        function submitAnswer() {
+            if (userRole !== 'player') return;
+            
+            const selected = document.querySelector('.answer-option.selected');
+            if (!selected) {
+                alert('Veuillez sélectionner une réponse !');
+                return;
+            }
+            
+            const selectedIndex = Array.from(document.querySelectorAll('.answer-option')).indexOf(selected);
+            const question = quizData[gameState.currentTheme][gameState.currentQuestionIndex];
+            
+            // Store answer
+            if (!gameState.answers[`q${gameState.currentQuestionIndex}`]) {
+                gameState.answers[`q${gameState.currentQuestionIndex}`] = {};
+            }
+            gameState.answers[`q${gameState.currentQuestionIndex}`][teamName] = selectedIndex;
+            
+            // Update score if correct
+            if (selectedIndex === question.correct) {
+                gameState.scores[teamName]++;
+            }
+            
+            saveGameState();
+            displayQuestion();
+        }
+
+        function renderTeamAnswersGrid() {
+            const grid = document.getElementById('teamAnswersGrid');
+            const currentQ = `q${gameState.currentQuestionIndex}`;
+            
+            grid.innerHTML = gameState.teams.map(team => {
+                const hasAnswered = gameState.answers[currentQ]?.[team] !== undefined;
+                return `
+                    <div class="team-card ${team === teamName ? 'active' : ''}">
+                        <div class="team-name">${team}</div>
+                        <div class="team-status ${hasAnswered ? 'team-answered' : ''}">
+                            ${hasAnswered ? '✓ Répondu' : '⏳ En attente'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function nextQuestion() {
+            if (userRole !== 'admin') return;
+            
+            gameState.currentQuestionIndex++;
+            
+            if (gameState.currentQuestionIndex < quizData[gameState.currentTheme].length) {
+                saveGameState();
+                displayQuestion();
+            } else {
+                showScores();
+            }
+        }
+
+        function showScores() {
+            if (!gameState.completedThemes.includes(gameState.currentTheme)) {
+                gameState.completedThemes.push(gameState.currentTheme);
+            }
+            saveGameState();
+            
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('scoresScreen').classList.remove('hidden');
+            document.getElementById('currentThemeName').textContent = gameState.currentTheme;
+            
+            renderScores();
+        }
+
+        function renderScores() {
+            const sortedTeams = [...gameState.teams].sort((a, b) => 
+                gameState.scores[b] - gameState.scores[a]
+            );
+            
+            const container = document.getElementById('scoresContainer');
+            container.innerHTML = sortedTeams.map((team, index) => `
+                <div class="score-row">
+                    <div class="score-rank">#${index + 1}</div>
+                    <div class="score-name">${team}</div>
+                    <div class="score-points">${gameState.scores[team]} pts</div>
+                </div>
+            `).join('');
+        }
+
+        function showReview() {
+            document.getElementById('scoresScreen').classList.add('hidden');
+            document.getElementById('reviewScreen').classList.remove('hidden');
+            document.getElementById('reviewThemeName').textContent = gameState.currentTheme;
+            
+            const container = document.getElementById('reviewContainer');
+            const questions = quizData[gameState.currentTheme];
+            
+            container.innerHTML = questions.map((q, index) => `
+                <div class="review-question">
+                    <div class="review-header">
+                        <div class="review-number">Q${index + 1}</div>
+                        <div class="review-text">${q.question}</div>
+                    </div>
+                    <div class="review-answer">
+                        <strong>✓ Bonne réponse :</strong> ${q.answers[q.correct]}
+                    </div>
+                    <div class="review-explanation">
+                        <div class="explanation-title">💡 Explication</div>
+                        ${q.explanation}
+                        <br><br>
+                        <em>Référence : ${q.reference}</em>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function backToThemes() {
+            gameState.currentTheme = null;
+            gameState.currentQuestionIndex = 0;
+            gameState.answers = {};
+            saveGameState();
+            
+            document.getElementById('reviewScreen').classList.add('hidden');
+            document.getElementById('finalScoresScreen').classList.add('hidden');
+            document.getElementById('themeScreen').classList.remove('hidden');
+            renderThemes();
+        }
+
+        function showFinalScores() {
+            document.getElementById('themeScreen').classList.add('hidden');
+            document.getElementById('finalScoresScreen').classList.remove('hidden');
+            
+            const sortedTeams = [...gameState.teams].sort((a, b) => 
+                gameState.scores[b] - gameState.scores[a]
+            );
+            
+            const container = document.getElementById('finalScoresContainer');
+            container.innerHTML = sortedTeams.map((team, index) => `
+                <div class="score-row">
+                    <div class="score-rank">${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '#' + (index + 1)}</div>
+                    <div class="score-name">${team}</div>
+                    <div class="score-points">${gameState.scores[team]} points</div>
+                </div>
+            `).join('');
+        }
+
+        function resetSession() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser la session ?')) {
+                localStorage.removeItem(`quiz_${sessionId}`);
+                location.reload();
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add enter key support for inputs
+            document.getElementById('teamNameInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addTeam();
+            });
+            
+            document.getElementById('sessionIdInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') validateSession();
+            });
+        });
+    </script>
+</body>
+</html>
